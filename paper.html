@@ -1,0 +1,1024 @@
+<title>Beyond a Single Machine</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg:         #edf0f2;
+    --surface:    #ffffff;
+    --surface-2:  #e4e8eb;
+    --ink:        #12181d;
+    --ink-soft:   #4a5560;
+    --ink-faint:  #7c8790;
+    --rule:       #d3d8db;
+    --rule-soft:  #e2e6e8;
+    --accent:     #0f7c8c;
+    --accent-ink: #075866;
+    --warm:       #b5541d;
+    --warm-soft:  #f4e3d6;
+    --good:       #1a7a4c;
+    --crit:       #b3261e;
+    --crit-soft:  #f7dedc;
+    --code-bg:    #e7ebee;
+    /* chart categorical, from validated reference palette */
+    --c-blue:   #2a78d6;
+    --c-orange: #eb6834;
+    --c-aqua:   #1baf7a;
+    --c-red:    #e34948;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg:         #0e1316;
+      --surface:    #161c20;
+      --surface-2:  #1c2328;
+      --ink:        #e7eaec;
+      --ink-soft:   #9aa6ad;
+      --ink-faint:  #6d7880;
+      --rule:       #283136;
+      --rule-soft:  #202729;
+      --accent:     #3fc4d6;
+      --accent-ink: #7fe0ee;
+      --warm:       #e08a4d;
+      --warm-soft:  #3a2a1c;
+      --good:       #4fbf83;
+      --crit:       #e66767;
+      --crit-soft:  #3a2220;
+      --code-bg:    #1c2328;
+      --c-blue:   #3987e5;
+      --c-orange: #d95926;
+      --c-aqua:   #199e70;
+      --c-red:    #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:         #0e1316;
+    --surface:    #161c20;
+    --surface-2:  #1c2328;
+    --ink:        #e7eaec;
+    --ink-soft:   #9aa6ad;
+    --ink-faint:  #6d7880;
+    --rule:       #283136;
+    --rule-soft:  #202729;
+    --accent:     #3fc4d6;
+    --accent-ink: #7fe0ee;
+    --warm:       #e08a4d;
+    --warm-soft:  #3a2a1c;
+    --good:       #4fbf83;
+    --crit:       #e66767;
+    --crit-soft:  #3a2220;
+    --code-bg:    #1c2328;
+    --c-blue:   #3987e5;
+    --c-orange: #d95926;
+    --c-aqua:   #199e70;
+    --c-red:    #e66767;
+  }
+
+  * { box-sizing: border-box; }
+  html { text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: var(--surface); }
+
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 64px 28px 120px;
+  }
+
+  h1, h2, h3, .label, nav, .kicker, figcaption .fig-num, .btn, .toc a {
+    font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  }
+  code, .mono, .data, table, .tick-label, .badge, .cite-key {
+    font-family: "IBM Plex Mono", "SF Mono", Consolas, monospace;
+  }
+
+  /* ── masthead ─────────────────────────────────────────── */
+  .kicker {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin: 0 0 18px;
+  }
+  h1.title {
+    font-size: 2.15rem;
+    line-height: 1.18;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 22px;
+    text-wrap: balance;
+    max-width: 22ch;
+  }
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .byline strong { color: var(--ink); font-weight: 600; }
+  .byline a { color: var(--accent-ink); }
+  .datestamp {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin: 4px 0 40px;
+  }
+
+  /* ── the ruler motif: a recurring log-scale strip ────────── */
+  .ruler {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 34px;
+    margin: 0 0 40px;
+  }
+  .ruler i {
+    flex: 1 1 auto;
+    background: var(--accent);
+    opacity: 0.14;
+    border-radius: 1px 1px 0 0;
+  }
+  .ruler i:nth-child(3n) { opacity: 0.30; }
+  .ruler i:nth-child(7n) { opacity: 0.55; }
+
+  /* ── abstract card ────────────────────────────────────── */
+  .abstract {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: 26px 28px;
+    margin-bottom: 52px;
+  }
+  .abstract .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin: 0 0 12px;
+  }
+  .abstract p { margin: 0; font-size: 15.5px; color: var(--ink-soft); }
+  .keywords {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule-soft);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+  .keywords b { color: var(--ink-soft); font-weight: 600; }
+
+  /* ── TOC ──────────────────────────────────────────────── */
+  .toc {
+    margin: 0 0 56px;
+    padding: 20px 24px;
+    background: var(--surface-2);
+    border-radius: 3px;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 13.5px;
+    columns: 2;
+    column-gap: 28px;
+  }
+  .toc a { color: var(--ink-soft); text-decoration: none; display: block; padding: 3px 0; break-inside: avoid; }
+  .toc a:hover { color: var(--accent-ink); }
+  .toc .n { color: var(--ink-faint); margin-right: 8px; }
+
+  /* ── sections ─────────────────────────────────────────── */
+  section { margin-bottom: 54px; }
+  .sec-head {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 14px;
+    align-items: baseline;
+    margin: 0 0 20px;
+    padding-top: 6px;
+    border-top: 1px solid var(--rule);
+  }
+  .sec-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+    padding-top: 3px;
+  }
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  h3 {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 34px 0 14px;
+  }
+  h3 .sub-num { color: var(--ink-faint); font-weight: 500; margin-right: 8px; }
+
+  p { margin: 0 0 16px; max-width: 68ch; }
+  strong { font-weight: 600; }
+  a { color: var(--accent-ink); }
+
+  .lead {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+  }
+
+  code.inline {
+    background: var(--code-bg);
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    font-size: 0.86em;
+  }
+
+  ol.findings { padding-left: 0; list-style: none; counter-reset: f; margin: 20px 0; }
+  ol.findings > li {
+    counter-increment: f;
+    position: relative;
+    padding: 4px 0 20px 46px;
+    border-left: 1px solid var(--rule);
+    margin-left: 15px;
+  }
+  ol.findings > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  ol.findings > li::before {
+    content: counter(f);
+    position: absolute;
+    left: -15px;
+    top: 2px;
+    width: 30px; height: 30px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--accent-ink);
+    border-radius: 50%;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.findings h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 700; font-family: "IBM Plex Sans", sans-serif; }
+  ol.findings p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+
+  blockquote.callout {
+    margin: 24px 0;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--warm);
+    border-radius: 3px;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  blockquote.callout p:last-child { margin-bottom: 0; }
+  blockquote.callout .cq-label {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warm);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* ── figures ──────────────────────────────────────────── */
+  figure { margin: 32px 0; }
+  figure svg { max-width: 100%; height: auto; display: block; }
+  figure .fig-frame {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 20px 22px;
+    overflow-x: auto;
+  }
+  figcaption {
+    margin-top: 10px;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  figcaption .fig-num { font-weight: 700; color: var(--ink); margin-right: 6px; }
+
+  /* ── tables ───────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin: 26px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    font-variant-numeric: tabular-nums;
+    background: var(--surface);
+  }
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  caption .fig-num { font-weight: 700; color: var(--ink); margin-right: 6px; }
+  th, td {
+    padding: 9px 14px;
+    text-align: right;
+    border-bottom: 1px solid var(--rule-soft);
+    white-space: nowrap;
+  }
+  th:first-child, td:first-child { text-align: left; font-family: "IBM Plex Sans", sans-serif; font-weight: 500; }
+  thead th {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 11.5px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    border-bottom: 2px solid var(--rule);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tr.hi td { color: var(--accent-ink); font-weight: 600; }
+  tr.fail td { color: var(--crit); }
+  td.win::after { content: " \25B2"; font-size: 0.7em; color: var(--good); }
+
+  /* ── badges / pills ───────────────────────────────────── */
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+  }
+  .badge.same { background: color-mix(in oklab, var(--c-blue) 18%, transparent); color: var(--c-blue); }
+  .badge.cross { background: color-mix(in oklab, var(--c-orange) 18%, transparent); color: var(--c-orange); }
+
+  /* ── refs ─────────────────────────────────────────────── */
+  .refs { list-style: none; padding: 0; margin: 0; font-size: 14px; color: var(--ink-soft); }
+  .refs li { padding: 8px 0 8px 34px; position: relative; border-bottom: 1px solid var(--rule-soft); }
+  .refs li:last-child { border-bottom: none; }
+  .refs .cite-key { position: absolute; left: 0; top: 8px; color: var(--ink-faint); font-size: 12.5px; }
+
+  /* ── footer ───────────────────────────────────────────── */
+  footer {
+    margin-top: 70px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (max-width: 620px) {
+    .page { padding: 40px 18px 90px; }
+    h1.title { font-size: 1.6rem; }
+    .toc { columns: 1; }
+    .sec-head { grid-template-columns: 26px 1fr; }
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<div class="page">
+
+  <p class="kicker">Systems &middot; On-Device LLM Inference &middot; Extended Study</p>
+  <h1 class="title">Beyond a Single Machine</h1>
+  <p class="lead" style="margin-bottom:28px; max-width:46ch;">Wi-Fi, real shared memory, and RDMA compared as transports for on-device LLM context delivery — and why the KV cache itself should usually never make the trip.</p>
+
+  <div class="byline">
+    <span><strong>Hari Prasad Sampatirao</strong></span>
+    <span>Walsh College, Troy, Michigan</span>
+    <span><a href="https://github.com/hari-sampatirao/memLLM">github.com/hari-sampatirao/memLLM</a></span>
+  </div>
+  <p class="datestamp">Companion study to MemLLM [1] &middot; August 2026</p>
+
+  <div class="ruler" aria-hidden="true" id="ruler"></div>
+
+  <div class="abstract">
+    <p class="label">Abstract</p>
+    <p>MemLLM [1] argued that zero-copy shared memory eliminates the serialization overhead dominating on-device LLM inference — a claim scoped, by construction, to a single machine. This study tests what happens at that scope's edges. We build and validate, on real hardware: (i) an eRPC-style reliable transport for the case where the application and inference server are not co-located, exercised over synthetic loss and then a real home Wi-Fi link between two physical devices; (ii) the Linux <code class="inline">memfd_create</code>/<code class="inline">eventfd</code> shared-memory path MemLLM always described but never measured, completing its own stated evaluation gap; and (iii) a real RDMA transport via Soft-RoCE, requiring no specialized hardware. Five genuine defects surfaced and were fixed in building the Wi-Fi transport, including a retry-storm failure mode that reproduces, and complicates, the standard claim that RoCE livelocks on lossy links. Real shared memory beats the Wi-Fi-capable transport by roughly 4&times; and real RDMA verbs beat our own Python shared-memory implementation by roughly 36&times; on the same machine — a measured ceiling this line of work falls well short of. We further argue, against an earlier framing of our own, that the KV cache should almost never cross the network at all: a thin client tracking only <em>what changed</em>, not the cache itself, is sufficient for the common architecture, which reframes what "KV-cache-over-Wi-Fi" should actually mean.</p>
+    <div class="keywords"><b>Keywords —</b> KV cache, shared memory, memif, eRPC, RoCE, Soft-RoCE, Wi-Fi, RDMA, on-device inference, vLLM</div>
+  </div>
+
+  <nav class="toc" aria-label="Table of contents">
+    <a href="#s1"><span class="n">1</span>Introduction</a>
+    <a href="#s2"><span class="n">2</span>Background</a>
+    <a href="#s3"><span class="n">3</span>Why the Cache Shouldn't Travel</a>
+    <a href="#s4"><span class="n">4</span>System Design</a>
+    <a href="#s5"><span class="n">5</span>Experimental Setup</a>
+    <a href="#s6"><span class="n">6</span>What Building It Found</a>
+    <a href="#s7"><span class="n">7</span>Results</a>
+    <a href="#s8"><span class="n">8</span>Synthesis</a>
+    <a href="#s9"><span class="n">9</span>Limitations &amp; Future Work</a>
+    <a href="#s10"><span class="n">10</span>Conclusion</a>
+    <a href="#refs"><span class="n">&nbsp;</span>References</a>
+  </nav>
+
+  <!-- ============================================================ 1 -->
+  <section id="s1">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Introduction</h2></div>
+
+    <p>MemLLM's central argument is that a directly-mapped shared memory region eliminates the serialization and copy overhead that dominates multi-turn, on-device LLM inference [1]. That argument is scoped to one machine by construction: two processes can only map the same physical pages when they share a kernel. The paper's own roadmap named two open directions — a real Linux implementation (only a Windows prototype was ever benchmarked) and the multi-device case, where MemLLM's own inspiration, the Linux <em>memif</em> shared-memory interface [2], comes from a lineage — high-performance packet I/O — that itself grew out of the same question networking research answered for RDMA over Converged Ethernet (RoCE): what replaces shared memory once two endpoints are no longer the same machine.</p>
+
+    <p>This paper answers both directions with measurements rather than projections, on a single consistent platform: a Linux workstation, a Windows laptop, an ordinary home Wi-Fi network, and a live vLLM server as a real inference backend alongside a controlled synthetic one. Three systems were built and validated:</p>
+
+    <ol style="padding-left: 22px; color: var(--ink-soft);">
+      <li>an eRPC-style [3] reliable UDP transport for the cross-device case, where shared memory is physically impossible;</li>
+      <li>the real Linux <code class="inline">memfd_create</code> + <code class="inline">SCM_RIGHTS</code> + <code class="inline">eventfd</code> path MemLLM described but never built;</li>
+      <li>Soft-RoCE — real RDMA verbs semantics with no specialized NIC — to locate RDMA precisely relative to both.</li>
+    </ol>
+
+    <p>A fourth contribution is architectural rather than empirical, and arose from a direct challenge to an earlier framing of this work: for the common case — a thin client talking to a fixed remote inference server — the KV cache should <strong>not</strong> be transferred at all. Section 3 makes this case before any transport numbers are presented, because it changes what "helping with the KV cache over Wi-Fi" should even mean.</p>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 700 340" role="img" aria-label="Landscape grid mapping every technology in this paper across two axes: same machine versus cross-device over Wi-Fi, and shared memory versus software transport versus RDMA">
+          <!-- column headers -->
+          <text x="330" y="24" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--c-blue)" letter-spacing="0.04em">SAME MACHINE</text>
+          <text x="565" y="24" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--c-orange)" letter-spacing="0.04em">CROSS-DEVICE (WI-FI)</text>
+          <line x1="20" y1="34" x2="680" y2="34" stroke="currentColor" stroke-opacity="0.25"/>
+
+          <!-- row 1: shared memory -->
+          <text x="14" y="80" font-size="12" font-weight="600" fill="currentColor">Shared</text>
+          <text x="14" y="94" font-size="12" font-weight="600" fill="currentColor">memory</text>
+
+          <rect x="150" y="48" width="180" height="66" rx="5" fill="none" stroke="currentColor" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+          <text x="240" y="68" text-anchor="middle" font-size="11" fill="currentColor">MemLLM (Windows)</text>
+          <text x="240" y="82" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.6">prior work [1]</text>
+          <text x="240" y="98" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.75">53,194ms (Phi-3, CPU)</text>
+
+          <rect x="340" y="48" width="180" height="66" rx="5" fill="var(--c-aqua)" fill-opacity="0.1" stroke="var(--c-aqua)" stroke-width="1.5"/>
+          <text x="430" y="68" text-anchor="middle" font-size="11" font-weight="600" fill="var(--c-aqua)">MemLLM-Linux</text>
+          <text x="430" y="82" text-anchor="middle" font-size="9.5" fill="var(--c-aqua)" opacity="0.8"><tspan font-family="IBM Plex Mono, monospace">memfd</tspan> + <tspan font-family="IBM Plex Mono, monospace">eventfd</tspan></text>
+          <text x="430" y="98" text-anchor="middle" font-size="10.5" fill="var(--c-aqua)" font-weight="600">0.1ms</text>
+
+          <rect x="555" y="48" width="125" height="66" rx="5" fill="none" stroke="var(--crit)" stroke-opacity="0.5" stroke-dasharray="3 3"/>
+          <line x1="565" y1="58" x2="670" y2="104" stroke="var(--crit)" stroke-opacity="0.5"/>
+          <text x="617" y="76" text-anchor="middle" font-size="10.5" fill="var(--crit)" font-weight="600">impossible</text>
+          <text x="617" y="92" text-anchor="middle" font-size="9" fill="var(--crit)" opacity="0.85">no shared RAM</text>
+          <text x="617" y="104" text-anchor="middle" font-size="9" fill="var(--crit)" opacity="0.85">across two devices</text>
+
+          <!-- row 2: software transport -->
+          <line x1="20" y1="130" x2="680" y2="130" stroke="currentColor" stroke-opacity="0.12"/>
+          <text x="14" y="176" font-size="12" font-weight="600" fill="currentColor">Software</text>
+          <text x="14" y="190" font-size="12" font-weight="600" fill="currentColor">transport</text>
+
+          <rect x="150" y="144" width="180" height="66" rx="5" fill="none" stroke="var(--c-blue)" stroke-opacity="0.6"/>
+          <text x="240" y="164" text-anchor="middle" font-size="11" fill="var(--c-blue)">UDP-RPC / HTTP</text>
+          <text x="240" y="178" text-anchor="middle" font-size="9.5" fill="var(--c-blue)" opacity="0.75">loopback</text>
+          <text x="240" y="196" text-anchor="middle" font-size="10.5" fill="var(--c-blue)" font-weight="600">0.4ms / 1.9ms</text>
+
+          <rect x="340" y="144" width="340" height="66" rx="5" fill="var(--c-orange)" fill-opacity="0.12" stroke="var(--c-orange)" stroke-width="1.5"/>
+          <text x="510" y="164" text-anchor="middle" font-size="11" font-weight="700" fill="var(--c-orange)">UDP-RPC / HTTP over real Wi-Fi</text>
+          <text x="510" y="180" text-anchor="middle" font-size="9.5" fill="var(--c-orange)" opacity="0.85">this paper's primary contribution &mdash; &sect;4.1, &sect;7.2&ndash;7.3</text>
+          <text x="510" y="198" text-anchor="middle" font-size="10.5" fill="var(--c-orange)" font-weight="600">1509ms / 1590ms (mock)&nbsp;&nbsp;&middot;&nbsp;&nbsp;10.6s / 10.8s (real vLLM)</text>
+
+          <!-- row 3: RDMA -->
+          <line x1="20" y1="226" x2="680" y2="226" stroke="currentColor" stroke-opacity="0.12"/>
+          <text x="14" y="272" font-size="12" font-weight="600" fill="currentColor">RDMA /</text>
+          <text x="14" y="286" font-size="12" font-weight="600" fill="currentColor">RDMA-class</text>
+
+          <rect x="150" y="240" width="180" height="66" rx="5" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-width="1.5"/>
+          <text x="240" y="260" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">Soft-RoCE</text>
+          <text x="240" y="274" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.7">real RDMA verbs, no NIC</text>
+          <text x="240" y="292" text-anchor="middle" font-size="10.5" fill="currentColor" font-weight="600">2.8&micro;s</text>
+
+          <rect x="340" y="240" width="340" height="66" rx="5" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+          <text x="510" y="260" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.8">RoCE over Wi-Fi</text>
+          <text x="510" y="276" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.65">Cisco patent US10,725,948 [12] &middot; not tested here (&sect;9)</text>
+          <text x="510" y="292" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.65">no compatible RDMA peer on this Wi-Fi network</text>
+
+          <!-- column dividers -->
+          <line x1="140" y1="42" x2="140" y2="312" stroke="currentColor" stroke-opacity="0.12"/>
+          <line x1="335" y1="42" x2="335" y2="312" stroke="currentColor" stroke-opacity="0.12"/>
+        </svg>
+      </div>
+      <figcaption><span class="fig-num">Figure 1.</span> Every mechanism in this paper, placed on one map. Prior work [1] is dashed; this paper's own measurements are solid; the orange cell is the paper's central, validated contribution; the untested cell names exactly why (Section&nbsp;9).</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ 2 -->
+  <section id="s2">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Background</h2></div>
+
+    <h3><span class="sub-num">2.1</span>MemLLM and memif</h3>
+    <p>MemLLM [1] maps a shared region between an application process and an inference server, exchanging token descriptors and payloads through an SPSC ring with no per-turn serialization. Its design borrows directly from <em>memif</em> [2], a shared-memory interface originated at Cisco for VPP/DPDK userspace packet I/O — memfd-backed regions, fixed descriptor rings, eventfd-style notification. Both are same-host mechanisms: the entire performance argument rests on two processes mapping identical physical pages, which requires a shared kernel and cannot be extended across a network by definition, not by engineering effort.</p>
+
+    <h3><span class="sub-num">2.2</span>RoCE, eRPC, and the wireless gap</h3>
+    <p>RDMA over Converged Ethernet extends memory-semantic access across a network fabric, but assumes the fabric is close to lossless, maintained by link-layer flow control (PFC/ECN). Applying RDMA directly to a wireless link removes that assumption without replacing it: prior work documents a livelock failure mode where a single dropped packet leaves the link fully utilized while the receiver never completes a message [4]. Industry has recognized the same gap: Cisco holds a granted patent [12] on making RoCE viable over Wi-Fi specifically, via MAC/PHY-layer mechanisms — pre-queuing placeholder frames to start 802.11 contention countdown early, and spreading redundant, XOR-coded packet fragments across non-contiguous OFDM subcarriers so narrowband interference cannot take out a whole packet. Both require driver- or firmware-level control over the radio. eRPC [3] takes the opposite position and layer — reliability implemented entirely in userspace over commodity UDP sockets, assuming loss as normal rather than exceptional, needing no specialized hardware or driver access — and is the design lineage this paper's Wi-Fi transport follows.</p>
+
+    <h3><span class="sub-num">2.3</span>Why Wi-Fi is lossy, physically</h3>
+    <p>This is not incidental. 802.11's CSMA/CA medium access is contention-based and only <em>avoids</em> collisions probabilistically, unlike wired Ethernet's now-obsolete collision-detection scheme — a busy channel means ongoing real loss, not an edge case. Consumer Wi-Fi also shares an already-crowded unlicensed band: overlapping channels from neighboring access points, Bluetooth and microwave interference on 2.4GHz, and distance-driven multipath fading all degrade the link independently of either endpoint. Rate adaptation then converts interference into latency variance as well as loss, as a station falls back to slower, more robust modulation. Loss and jitter are Wi-Fi's normal operating regime, which is precisely why a transport for it has to be validated against both, not merely assumed reliable once "made reliable" in the abstract.</p>
+  </section>
+
+  <!-- ============================================================ 3 -->
+  <section id="s3">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Why the Cache Shouldn't Travel</h2></div>
+
+    <p>Before any transport is described, it is worth being precise about what actually needs to cross a network link in the first place — because the answer is smaller than "KV-cache-over-Wi-Fi" suggests, and it shapes every design choice that follows.</p>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 680 300" role="img" aria-label="Diagram showing the KV cache staying on the inference server while only short text deltas cross the Wi-Fi link to the client device">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <!-- client box -->
+          <rect x="14" y="40" width="200" height="220" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+          <text x="114" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">Client (laptop)</text>
+          <rect x="34" y="86" width="160" height="60" rx="4" fill="none" stroke="currentColor" stroke-opacity="0.5"/>
+          <text x="114" y="110" text-anchor="middle" font-size="11.5" fill="currentColor">conversation text</text>
+          <text x="114" y="126" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">(kilobytes, UI state)</text>
+          <rect x="34" y="164" width="160" height="70" rx="4" fill="none" stroke="var(--c-blue)" stroke-width="1.5"/>
+          <text x="114" y="186" text-anchor="middle" font-size="11.5" fill="var(--c-blue)" font-weight="600">turn identity</text>
+          <text x="114" y="202" text-anchor="middle" font-size="10.5" fill="var(--c-blue)">seq no. / hash</text>
+          <text x="114" y="216" text-anchor="middle" font-size="10.5" fill="var(--c-blue)">"what changed"</text>
+
+          <!-- wifi zigzag -->
+          <g stroke="currentColor" stroke-opacity="0.4" fill="none" stroke-width="1.5">
+            <path d="M234,110 q14,-16 28,0 t28,0 t28,0"/>
+            <path d="M234,190 q14,16 28,0 t28,0 t28,0"/>
+          </g>
+          <text x="340" y="30" text-anchor="middle" font-size="11" letter-spacing="0.08em" fill="currentColor" opacity="0.6">WI&#8209;FI</text>
+
+          <!-- arrows -->
+          <line x1="234" y1="108" x2="352" y2="108" stroke="var(--c-blue)" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="293" y="98" text-anchor="middle" font-size="10.5" fill="var(--c-blue)">new prompt (&lt;1.2KB)</text>
+
+          <line x1="352" y1="192" x2="234" y2="192" stroke="var(--c-orange)" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="293" y="182" text-anchor="middle" font-size="10.5" fill="var(--c-orange)">reply text</text>
+
+          <!-- server box -->
+          <rect x="352" y="40" width="314" height="220" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+          <text x="509" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="currentColor">Inference server (GPU)</text>
+          <rect x="372" y="86" width="130" height="60" rx="4" fill="none" stroke="currentColor" stroke-opacity="0.5"/>
+          <text x="437" y="112" text-anchor="middle" font-size="11.5" fill="currentColor">transport</text>
+          <text x="437" y="128" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.65">endpoint</text>
+
+          <rect x="518" y="86" width="128" height="60" rx="4" fill="none" stroke="currentColor" stroke-opacity="0.5"/>
+          <text x="582" y="112" text-anchor="middle" font-size="11.5" fill="currentColor">history /</text>
+          <text x="582" y="128" text-anchor="middle" font-size="11.5" fill="currentColor">generation</text>
+
+          <rect x="372" y="164" width="274" height="70" rx="4" fill="var(--crit)" fill-opacity="0.08" stroke="var(--crit)" stroke-width="1.5"/>
+          <text x="509" y="188" text-anchor="middle" font-size="12" font-weight="700" fill="var(--crit)">KV cache tensors</text>
+          <text x="509" y="205" text-anchor="middle" font-size="10.5" fill="var(--crit)">tens of MB &ndash; tens of GB (&sect;2.2 of [1])</text>
+          <text x="509" y="220" text-anchor="middle" font-size="10.5" fill="var(--crit)" font-weight="600">never leaves this box</text>
+
+        </svg>
+      </div>
+      <figcaption><span class="fig-num">Figure 2.</span> The architecture this paper actually validates. The client sends only the newest turn's text and tracks turn identity, not cache contents; the KV cache is produced and consumed entirely on the inference server and is never a network payload.</figcaption>
+    </figure>
+
+    <p>Every transport result in this paper moved messages of this shape — a few hundred bytes, not cache tensors — and that was the correct design, not a shortcut around a harder test. For a fixed remote inference server, the client's role is genuinely light: hold the conversation as plain text for its own interface (kilobytes, trivial on any device with no GPU at all), and forward only what changed. In the common, linear, append-only case, "what changed" is trivial — it is simply whatever the user just typed, which the client already has for free.</p>
+
+    <p>This does mean the client needs to track <em>identity</em>, never <em>contents</em>, once a conversation stops being perfectly linear: an edited or branched turn needs a sequence number or hash so the server knows which cached suffix to discard; multiple devices sharing one context need to know how much of the server's cached prefix is still valid, which is exactly the problem RadixAttention's prefix hashing [6] solves server-side, with the client's part reduced to an identifier.</p>
+
+    <p>Real KV cache <em>migration</em> — the tensors physically crossing a network — is a genuine technique, but belongs to narrower problems than "a thin client uses a remote GPU":</p>
+
+    <ol style="padding-left: 22px; color: var(--ink-soft);">
+      <li><strong>Prefill/decode disaggregation</strong> (Mooncake [8], DistServe) moves cache between differently-optimized serving nodes <em>inside a datacenter</em>, over RDMA on wired infrastructure purpose-built for it.</li>
+      <li><strong>Compute handoff mid-conversation</strong> is the one case that plausibly touches Wi-Fi — but the raw conversation text is kilobytes and the cache is megabytes-to-gigabytes, so resending text and recomputing locally is usually cheaper than shipping the cache, unless recompute is prohibitively slow.</li>
+      <li><strong>Layer-split pipeline parallelism</strong> requires activations to cross the link on <em>every token</em>, continuously — a harder and more frequent transfer problem than a one-time migration, and a weaker case for Wi-Fi, not a stronger one.</li>
+    </ol>
+
+    <p>None of these three is the scenario this paper tests, and none needed to be. Sections 4–7 validate the transport for the architecture in Figure 2 — the one that actually applies to a thin client using a remote GPU over Wi-Fi.</p>
+  </section>
+
+  <!-- ============================================================ 4 -->
+  <section id="s4">
+    <div class="sec-head"><span class="sec-num">04</span><h2>System Design</h2></div>
+
+    <h3><span class="sub-num">4.1</span>eRPC-style transport for the cross-device case</h3>
+    <p>The Wi-Fi transport reuses MemLLM's descriptor philosophy — a fixed-size header plus a payload pool — serialized onto plain UDP datagrams, since no directly-mapped address space exists across a wireless hop. Three choices follow eRPC [3] rather than RoCE:</p>
+    <ol style="padding-left: 22px; color: var(--ink-soft);">
+      <li><strong>Reliability in userspace.</strong> Per-fragment selective-repeat ACKs (a bitmap, not a cumulative sequence number) mean one lost fragment costs one retransmission, not a full-message resend.</li>
+      <li><strong>Run-to-completion polling.</strong> Both sides busy-poll a non-blocking socket rather than block on <code class="inline">recv()</code> — the same latency-vs-CPU tradeoff MemLLM's Windows prototype makes with <code class="inline">threading.Event</code> polling in place of <code class="inline">eventfd</code>.</li>
+      <li><strong>Exponential backoff with jitter</strong> on retransmission, added after Finding&nbsp;3 in Section&nbsp;6 — the one point where the design diverges from a naive first pass and converges on what TCP and real eRPC already do.</li>
+    </ol>
+
+    <h3><span class="sub-num">4.2</span>The real Linux shared-memory path</h3>
+    <p>MemLLM always described a Linux path — <code class="inline">memfd_create(2)</code> for the region, <code class="inline">SCM_RIGHTS</code> over <code class="inline">AF_UNIX</code> for fd transfer, <code class="inline">eventfd</code> for notification — but only the Windows named-shared-memory prototype was ever benchmarked. This work implements it, reusing the identical control-block and descriptor layout from the Windows path, so the "same physical layout and ring protocol" claim [1] is now literally true rather than asserted for a path that didn't exist.</p>
+
+    <h3><span class="sub-num">4.3</span>Soft-RoCE</h3>
+    <p>To locate RDMA precisely rather than cite its reputation, Soft-RoCE (<code class="inline">rdma_rxe</code>) — a kernel module presenting a real RDMA verbs device (queue pairs, memory registration, completion queues) over an ordinary NIC, no specialized hardware required — was brought up on the Linux workstation and measured directly with standard RDMA microbenchmarks.</p>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 700 260" role="img" aria-label="Four transport paths on one machine, showing the hops each one takes between the application and the inference backend">
+          <defs>
+            <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <text x="16" y="20" font-size="11" fill="currentColor" opacity="0.6">APP</text>
+          <text x="660" y="20" font-size="11" fill="currentColor" opacity="0.6" text-anchor="end">BACKEND</text>
+
+          <!-- lane 1: memfd+eventfd -->
+          <g>
+            <text x="16" y="46" font-size="12" font-weight="600" fill="var(--c-aqua)">memfd + eventfd</text>
+            <line x1="16" y1="58" x2="600" y2="58" stroke="var(--c-aqua)" stroke-width="2"/>
+            <circle cx="600" cy="58" r="3" fill="var(--c-aqua)"/>
+            <text x="608" y="62" font-size="12" font-weight="700" fill="var(--c-aqua)">0.1ms</text>
+            <text x="308" y="50" font-size="10" fill="currentColor" opacity="0.55" text-anchor="middle">shared page, one eventfd syscall pair</text>
+          </g>
+
+          <!-- lane 2: udp-rpc -->
+          <g>
+            <text x="16" y="94" font-size="12" font-weight="600" fill="var(--c-blue)">UDP-RPC (eRPC-style)</text>
+            <line x1="16" y1="106" x2="600" y2="106" stroke="var(--c-blue)" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round"/>
+            <circle cx="600" cy="106" r="3" fill="var(--c-blue)"/>
+            <text x="608" y="110" font-size="12" font-weight="700" fill="var(--c-blue)">0.4ms</text>
+            <text x="308" y="98" font-size="10" fill="currentColor" opacity="0.55" text-anchor="middle">kernel socket + UDP/IP stack, busy-poll</text>
+          </g>
+
+          <!-- lane 3: http -->
+          <g>
+            <text x="16" y="142" font-size="12" font-weight="600" fill="var(--c-orange)">HTTP/JSON</text>
+            <line x1="16" y1="154" x2="600" y2="154" stroke="var(--c-orange)" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round"/>
+            <circle cx="600" cy="154" r="3" fill="var(--c-orange)"/>
+            <text x="608" y="158" font-size="12" font-weight="700" fill="var(--c-orange)">1.9ms</text>
+            <text x="308" y="146" font-size="10" fill="currentColor" opacity="0.55" text-anchor="middle">TCP handshake + JSON serialize, per request</text>
+          </g>
+
+          <!-- lane 4: soft-roce -->
+          <g>
+            <text x="16" y="190" font-size="12" font-weight="600" fill="currentColor">Soft-RoCE (ibverbs)</text>
+            <line x1="16" y1="202" x2="600" y2="202" stroke="currentColor" stroke-width="3"/>
+            <circle cx="600" cy="202" r="3.5" fill="currentColor"/>
+            <text x="608" y="206" font-size="12" font-weight="700" fill="currentColor">2.8&micro;s</text>
+            <text x="308" y="194" font-size="10" fill="currentColor" opacity="0.55" text-anchor="middle">RDMA verbs, C, completion-queue polling</text>
+          </g>
+
+          <text x="16" y="238" font-size="10.5" fill="currentColor" opacity="0.5">compute removed &mdash; pure transport overhead, same machine, log-scaled positions are illustrative</text>
+        </svg>
+      </div>
+      <figcaption><span class="fig-num">Figure 3.</span> Four paths between the same two endpoints on one machine, and what each one costs once model compute is held constant. The gap from HTTP/JSON down to Soft-RoCE spans roughly three orders of magnitude.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ 5 -->
+  <section id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Experimental Setup</h2></div>
+    <p>All measurements ran on a single consistent platform: a Linux workstation (NVIDIA GB10) as the fixed inference server, a Windows laptop as the Wi-Fi client, connected over an ordinary home Wi-Fi network (measured baseline RTT 18.5ms, <code class="inline">ping</code>, n=2). A live, unmodified vLLM server (Qwen2.5-7B-Instruct, OpenAI-compatible API, Apache&nbsp;2.0 licensed) served as a real inference backend alongside a synthetic mock backend used to isolate transport behavior from compute variance, matching generation time statistically across both transports under test. Reaching the real-Wi-Fi configuration required reconnecting a dropped Wi-Fi adapter and opening LAN-scoped firewall rules on the server host — friction that HTTP-over-Ethernet mostly lets users forget about, and worth naming as a real deployment cost.</p>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 700 300" role="img" aria-label="Network topology diagram of the experimental setup: a Windows laptop and a Linux workstation with two network interfaces, connected through a home Wi-Fi router, with the workstation's public interface unused for this experiment">
+          <defs>
+            <marker id="arrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <!-- laptop -->
+          <rect x="16" y="90" width="168" height="130" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.4"/>
+          <text x="100" y="112" text-anchor="middle" font-size="12.5" font-weight="600" fill="currentColor">Windows laptop</text>
+          <text x="100" y="128" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">client &middot; 192.168.1.103</text>
+          <rect x="32" y="142" width="136" height="62" rx="4" fill="var(--c-orange)" fill-opacity="0.1" stroke="var(--c-orange)"/>
+          <text x="100" y="164" text-anchor="middle" font-size="10.5" fill="var(--c-orange)">benchmark client</text>
+          <text x="100" y="178" text-anchor="middle" font-size="9.5" fill="var(--c-orange)" opacity="0.8">UDP-RPC + HTTP/JSON</text>
+          <text x="100" y="192" text-anchor="middle" font-size="9.5" fill="var(--c-orange)" opacity="0.8">PowerShell / Python</text>
+
+          <!-- router -->
+          <g>
+            <rect x="298" y="30" width="104" height="52" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.5"/>
+            <text x="350" y="52" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor">Home Wi-Fi</text>
+            <text x="350" y="66" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.6">gateway</text>
+          </g>
+
+          <line x1="184" y1="130" x2="308" y2="72" stroke="var(--c-orange)" stroke-width="1.7" marker-end="url(#arrow3)"/>
+          <line x1="402" y1="66" x2="502" y2="150" stroke="var(--c-orange)" stroke-width="1.7" marker-end="url(#arrow3)"/>
+          <text x="350" y="106" text-anchor="middle" font-size="10.5" fill="var(--c-orange)" font-weight="600">18.5ms RTT (measured)</text>
+
+          <!-- workstation -->
+          <rect x="490" y="90" width="194" height="196" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.4"/>
+          <text x="587" y="112" text-anchor="middle" font-size="12.5" font-weight="600" fill="currentColor">Linux workstation</text>
+          <text x="587" y="128" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">server &middot; NVIDIA GB10</text>
+
+          <rect x="504" y="140" width="166" height="34" rx="4" fill="var(--c-aqua)" fill-opacity="0.12" stroke="var(--c-aqua)"/>
+          <text x="587" y="154" text-anchor="middle" font-size="10" font-weight="600" fill="var(--c-aqua)">wlP9s9 &middot; 192.168.1.114</text>
+          <text x="587" y="167" text-anchor="middle" font-size="9" fill="var(--c-aqua)" opacity="0.85">Wi-Fi &mdash; used for every result here</text>
+
+          <rect x="504" y="180" width="166" height="30" rx="4" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="2 3"/>
+          <text x="587" y="196" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.5">enP7s7 &middot; public IP (WAN)</text>
+          <text x="587" y="207" text-anchor="middle" font-size="8.5" fill="currentColor" opacity="0.45">unused for this experiment</text>
+
+          <rect x="504" y="220" width="166" height="54" rx="4" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.35"/>
+          <text x="587" y="236" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.8">vLLM (Qwen2.5-7B) &middot; mock backend</text>
+          <text x="587" y="250" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.8">memfd+eventfd &middot; UDP-RPC/HTTP servers</text>
+          <text x="587" y="264" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.8">Soft-RoCE (<tspan font-family="IBM Plex Mono, monospace">rdma_rxe</tspan>) &rarr; <tspan font-family="IBM Plex Mono, monospace">wlP9s9</tspan></text>
+
+          <text x="350" y="288" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.55">Soft-RoCE (&sect;4.3, &sect;7.5) ran self-to-self on the workstation only &mdash; no second RDMA-capable peer existed on this network</text>
+        </svg>
+      </div>
+      <figcaption><span class="fig-num">Figure 4.</span> The physical setup behind every measurement. The workstation carries two interfaces; only the Wi-Fi-facing one (<code class="inline">wlP9s9</code>) is exercised by the results in this paper — reaching it required reconnecting a dropped Wi-Fi adapter and opening LAN-scoped firewall rules, a real cost this diagram makes visible.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ 6 -->
+  <section id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2>What Building It Found</h2></div>
+    <p class="lead">Five defects surfaced across three validation stages — synthetic backend, synthetic loss on loopback, then two physical devices on real Wi-Fi — that loopback testing at zero loss would not have exposed.</p>
+
+    <ol class="findings">
+      <li>
+        <h4>Duplicate delivery under ACK loss</h4>
+        <p>A lost ACK causes the sender to retransmit an already-delivered message. Without dedup, this produced both a stale reply silently misdelivered to a later, unrelated caller, and a <code class="inline">KeyError</code> that silently killed the server thread once a duplicate was queued twice. Fixed by tracking delivered message IDs and re-acknowledging duplicates idempotently, without re-queueing them.</p>
+      </li>
+      <li>
+        <h4>Session-scoped identity</h4>
+        <p>A long-lived server plus a freshly restarted client reusing small integer message IDs collided with the previous session's dedup cache — the server silently ACKed the request without ever generating a real response. Sequence numbers need session scope, not just uniqueness.</p>
+      </li>
+      <li>
+        <h4>Fixed retry intervals cause retry storms</h4>
+        <p>Under synthetic loopback loss, a fixed 20ms retransmit timer produced far worse than predicted failure at high loss — <strong>≈80% message failure at a nominal 30% loss</strong>, versus a near-zero first-order estimate — because both endpoints' retransmissions outpaced the busy-poll drain rate. Exponential backoff with jitter restored <strong>100% delivery at the same loss rate</strong>. This is the single most RoCE-relevant finding: concrete evidence that a viable software transport needs real congestion control, not merely "add retries."</p>
+      </li>
+      <li>
+        <h4>Fault isolation is not free</h4>
+        <p>One response exhausting its retry budget raised an uncaught exception that took the entire server down, not just that message. HTTP/TCP gives per-connection fault isolation for free at the kernel layer; a hand-rolled UDP transport has to be built to survive one failed message.</p>
+      </li>
+      <li>
+        <h4>A fast synthetic backend hides a real one's failure mode</h4>
+        <p>Once pointed at the live vLLM server, real 7B decode latency (6–14s/turn) exceeded the client's 30s receive-timeout margin often enough that the client gave up and issued the next turn's request while the server was still blocked inside the previous turn's non-polling <code class="inline">generate()</code> call — a pipeline desync that looked identical to a reliability failure but had nothing to do with loss. Widening the timeout past the backend's observed worst case resolved it.</p>
+      </li>
+    </ol>
+
+    <blockquote class="callout">
+      <span class="cq-label">Building the Linux path, separately</span>
+      <p>Two further bugs surfaced implementing the <code class="inline">memfd</code>/<code class="inline">eventfd</code> path: <code class="inline">socket.recv_fds()</code>'s return tuple was unpacked in the wrong order (silently measuring a 1-byte placeholder instead of the file-descriptor list), and a <code class="inline">ctypes</code>-created buffer view had to be explicitly released before <code class="inline">mmap.close()</code> would succeed. Both are the kind of mistake that only surfaces by actually building the thing.</p>
+    </blockquote>
+  </section>
+
+  <!-- ============================================================ 7 -->
+  <section id="s7">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Results</h2></div>
+
+    <h3><span class="sub-num">7.1</span>The full latency spectrum</h3>
+    <p>Figure 5 places every measurement in this study and its predecessor [1] on one log-scaled comparison, spanning roughly seven orders of magnitude from a CPU-bound cloud-style HTTP baseline down to raw RDMA verbs.</p>
+
+    <figure>
+      <div class="fig-frame" id="chart-spectrum"></div>
+      <figcaption><span class="fig-num">Figure 5.</span> Mean latency across every mechanism measured, log-scaled. <span class="badge cross">orange</span> marks require a second physical device (cross-device); <span class="badge same">blue</span> stays on one machine. The RoCE 40%-loss bar shows a connection-setup failure, not a completed measurement.</figcaption>
+    </figure>
+
+    <h3><span class="sub-num">7.2</span>Real Wi-Fi, controlled backend</h3>
+    <p>With generation time held statistically identical across transports, any latency difference is attributable to the transport alone.</p>
+    <div class="table-wrap">
+      <table>
+        <caption><span class="fig-num">Table 1.</span> UDP-RPC vs. HTTP/JSON, controlled mock backend.</caption>
+        <thead><tr><th>Condition</th><th>N</th><th>Mean</th><th>Median</th><th>stdev</th><th>p95</th><th>Retrans.</th></tr></thead>
+        <tbody>
+          <tr><td>UDP-RPC, loopback</td><td>10</td><td>1485ms</td><td>1507ms</td><td>327ms</td><td>2006ms</td><td>0</td></tr>
+          <tr class="hi"><td>UDP-RPC, real Wi-Fi</td><td>10</td><td class="win">1509ms</td><td>1538ms</td><td>333ms</td><td class="win">2020ms</td><td>3</td></tr>
+          <tr><td>HTTP/JSON, real Wi-Fi</td><td>10</td><td>1590ms</td><td>1604ms</td><td>308ms</td><td>2096ms</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Real-Wi-Fi overhead over loopback was ≈25ms mean — consistent with the measured 18.5ms link RTT plus one retransmission round, not a multiplicative blowup. UDP-RPC ran ≈80ms lower than HTTP/JSON on both mean and p95, the same direction as MemLLM's local shared-memory-vs-HTTP result [1], now reproduced across a wireless hop.</p>
+
+    <h3><span class="sub-num">7.3</span>Real Wi-Fi, real inference</h3>
+    <div class="table-wrap">
+      <table>
+        <caption><span class="fig-num">Table 2.</span> UDP-RPC vs. HTTP/JSON, real Qwen2.5-7B-Instruct via vLLM.</caption>
+        <thead><tr><th>Condition</th><th>N</th><th>Mean</th><th>Median</th><th>stdev</th><th>p95</th><th>Retrans.</th></tr></thead>
+        <tbody>
+          <tr class="hi"><td>UDP-RPC, real Wi-Fi + vLLM</td><td>10</td><td class="win">10,613ms</td><td>12,071ms</td><td>3570ms</td><td class="win">13,720ms</td><td>2</td></tr>
+          <tr><td>HTTP/JSON, real Wi-Fi + vLLM</td><td>10</td><td>10,769ms</td><td>12,557ms</td><td>3809ms</td><td>13,712ms</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>UDP-RPC still ran marginally lower and absorbed two genuine Wi-Fi packet losses with no failed turns, but the gap shrinks to a rounding error against 6–14s of real decode. This revised an initial hypothesis that faster GPU decode would make transport choice <em>more</em> visible; the honest result is that this accelerator's decode speed was not fast enough to flip that balance — the same regime as the CPU-bound baseline in [1], for a different underlying reason.</p>
+
+    <h3><span class="sub-num">7.4</span>Same machine, compute removed</h3>
+    <div class="table-wrap">
+      <table>
+        <caption><span class="fig-num">Table 3.</span> Pure transport overhead, one machine, synthetic near-zero-latency backend.</caption>
+        <thead><tr><th>Mechanism</th><th>Mean</th><th>p95</th><th>Implementation</th></tr></thead>
+        <tbody>
+          <tr class="hi"><td>MemLLM&#8209;Linux (<code class="inline">memfd</code>+<code class="inline">eventfd</code>)</td><td class="win">0.1ms</td><td>0.2ms</td><td>Python</td></tr>
+          <tr><td>UDP-RPC (loopback)</td><td>0.4ms</td><td>0.7ms</td><td>Python</td></tr>
+          <tr><td>HTTP/JSON (loopback)</td><td>1.9ms</td><td>14.8ms</td><td>Python</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Real shared memory is ≈4&times; faster than the eRPC-style transport and ≈19&times; faster than HTTP/JSON on mean, with a far tighter tail — HTTP's p95 balloons to 14.8ms, plausibly from per-request TCP connection overhead neither UDP nor shared memory pays.</p>
+
+    <h3><span class="sub-num">7.5</span>Where RDMA actually sits</h3>
+    <div class="table-wrap">
+      <table>
+        <caption><span class="fig-num">Table 4.</span> Soft-RoCE (<code class="inline">ib_send_lat</code>) under synthetic loss on the interface the traffic actually traversed.</caption>
+        <thead><tr><th>Loss</th><th>Mean latency</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr class="hi"><td>0%</td><td class="win">2.8&micro;s</td><td>1000 / 1000 iterations</td></tr>
+          <tr><td>20%</td><td>4.7&micro;s (+67%)</td><td>1000 / 1000 iterations, no failures</td></tr>
+          <tr class="fail"><td>40%</td><td>&mdash;</td><td>connection <em>setup</em> failed (reproduced twice)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Real RDMA verbs — even software-emulated, no specialized NIC — beat this paper's own Python <code class="inline">memfd</code>/<code class="inline">eventfd</code> implementation by roughly 36&times;, a gap almost certainly dominated by C-versus-Python and completion-queue polling versus per-operation syscalls, not by anything fundamental to shared memory as a mechanism. At 20% loss, the RDMA Reliable Connection transport's own retransmission logic absorbed the loss with a graceful increase and zero failures — more resilient than a naive reading of "RoCE assumes a lossless fabric" predicts. The failure at 40% is more precise than "RoCE breaks under loss": the benchmark tool's plain, non-redundant TCP side-channel for exchanging queue-pair parameters failed during connection bootstrap, not the RDMA data path mid-transfer. This nuances, rather than confirms, this paper's own framing in Section&nbsp;2.2 — the vulnerability demonstrated is in naive control-plane tooling, not necessarily in the reliability mechanism RDMA's data path itself provides where it was actually exercised.</p>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 700 220" role="img" aria-label="Diagram showing that at 0 percent and 20 percent loss, both connection setup and RDMA data transfer complete successfully, while at 40 percent loss the connection setup phase itself fails before any RDMA data transfer is attempted">
+          <text x="16" y="18" font-size="10.5" font-weight="600" fill="currentColor" opacity="0.6" letter-spacing="0.04em">SETUP (plain TCP side-channel)</text>
+          <text x="430" y="18" font-size="10.5" font-weight="600" fill="currentColor" opacity="0.6" letter-spacing="0.04em">DATA (RDMA verbs, RC transport)</text>
+          <line x1="330" y1="4" x2="330" y2="204" stroke="currentColor" stroke-opacity="0.15" stroke-dasharray="2 4"/>
+
+          <!-- 0% -->
+          <text x="16" y="52" font-size="12" font-weight="600" fill="currentColor">0% loss</text>
+          <rect x="90" y="38" width="230" height="20" rx="4" fill="var(--good)" fill-opacity="0.85"/>
+          <rect x="330" y="38" width="300" height="20" rx="4" fill="var(--good)" fill-opacity="0.85"/>
+          <text x="642" y="53" font-size="12" font-weight="700" fill="var(--good)">2.8&micro;s &#10003;</text>
+
+          <!-- 20% -->
+          <text x="16" y="102" font-size="12" font-weight="600" fill="currentColor">20% loss</text>
+          <rect x="90" y="88" width="230" height="20" rx="4" fill="var(--good)" fill-opacity="0.7"/>
+          <rect x="330" y="88" width="300" height="20" rx="4" fill="var(--good)" fill-opacity="0.55"/>
+          <text x="205" y="102" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.7">retransmits, but completes</text>
+          <text x="642" y="103" font-size="12" font-weight="700" fill="var(--good)">4.7&micro;s &#10003;</text>
+
+          <!-- 40% -->
+          <text x="16" y="152" font-size="12" font-weight="600" fill="currentColor">40% loss</text>
+          <rect x="90" y="138" width="150" height="20" rx="4" fill="var(--crit)" fill-opacity="0.85"/>
+          <rect x="240" y="138" width="80" height="20" rx="4" fill="var(--crit)" fill-opacity="0.3"/>
+          <text x="240" y="132" font-size="9" fill="var(--crit)">&#10007; fails here</text>
+          <rect x="330" y="138" width="300" height="20" rx="4" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.2" stroke-dasharray="3 3"/>
+          <text x="480" y="152" text-anchor="middle" font-size="9.5" fill="currentColor" opacity="0.45">never reached</text>
+          <text x="642" y="153" font-size="12" font-weight="700" fill="var(--crit)">&mdash;</text>
+
+          <text x="16" y="196" font-size="10" fill="currentColor" opacity="0.6">Reproduced twice. The failure is in the benchmark tool's non-redundant setup handshake, not the RDMA transport's own retry logic.</text>
+        </svg>
+      </div>
+      <figcaption><span class="fig-num">Figure 6.</span> Where Soft-RoCE actually breaks under loss. The RDMA data path (right) was never reached at 40% loss — the plain TCP handshake used to bootstrap the connection (left) failed first, both times.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ 8 -->
+  <section id="s8">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Synthesis</h2></div>
+
+    <div class="table-wrap">
+      <table>
+        <caption><span class="fig-num">Table 5.</span> Direct answers.</caption>
+        <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+        <tbody>
+          <tr><td style="text-align:left;">Does MemLLM's own mechanism help over Wi-Fi?</td><td style="text-align:left;">No — shared memory needs shared RAM, which a second device removes by definition.</td></tr>
+          <tr><td style="text-align:left;">Does its design philosophy, as a wire protocol, help?</td><td style="text-align:left;">Modestly — ≈80ms under HTTP/JSON with a controlled backend; the gap vanishes once real compute dominates.</td></tr>
+          <tr><td style="text-align:left;">Does the real Linux <code class="inline">memfd</code>/<code class="inline">eventfd</code> path help?</td><td style="text-align:left;">Yes, substantially — ≈4&times; over UDP-RPC, ≈19&times; over HTTP — strictly on one machine.</td></tr>
+          <tr><td style="text-align:left;">Where does RoCE fit?</td><td style="text-align:left;">Another order of magnitude above all of the above (2.8&micro;s); its control-plane setup is fragile under naive tooling, its data path was not, where tested.</td></tr>
+          <tr><td style="text-align:left;">Does any of this need the KV cache to cross the network?</td><td style="text-align:left;">No — see Section&nbsp;3. That is the point.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ 9 -->
+  <section id="s9">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Limitations &amp; Future Work</h2></div>
+    <p>Loss injection was synthetic and loopback/local-interface only, not a contended wireless channel with the correlated bursts and rate-adaptation jitter Section&nbsp;2.3 describes; the real-Wi-Fi run used a single link, a single device pair, and n=10 turns; the RoCE result is same-machine only, since no second RDMA-capable peer was available on the Wi-Fi network; and the Soft-RoCE loss test used two data points rather than a swept curve. A rigorous follow-up would add a second Linux Soft-RoCE peer to test RoCE across an actual Wi-Fi hop, real <code class="inline">tc netem</code>-shaped loss and jitter on a physical link, multiple independent runs per condition, and a finer-grained loss sweep to localize the RC transport's own breaking point, if one exists at all, separately from the benchmark tool's control-channel fragility. Real KV cache tensor transfer, for the disaggregated-serving and compute-handoff cases named in Section&nbsp;3, is deliberately left as a different, future problem rather than an unfinished part of this one.</p>
+  </section>
+
+  <!-- ============================================================ 10 -->
+  <section id="s10">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Conclusion</h2></div>
+    <p>MemLLM's zero-copy argument does not, and cannot, extend past one machine — but its design philosophy does, in a wire protocol that measurably beats plain HTTP/JSON on a real Wi-Fi link and survives real packet loss without failing. On the machine where shared memory is actually available, this work supplies the real Linux measurement MemLLM always described, and locates it precisely against real RDMA: roughly four times behind real shared memory, and roughly thirty-six times behind Soft-RoCE, a ceiling this line of Python prototypes falls well short of. Most importantly, the architecture that makes any of this necessary at all turns out to be narrower than "KV cache over Wi-Fi" implies — the cache should stay exactly where it was computed, and only the smallest possible delta, plus a lightweight record of what changed, needs to travel at all.</p>
+  </section>
+
+  <!-- ============================================================ REFS -->
+  <section id="refs">
+    <div class="sec-head"><span class="sec-num">&nbsp;</span><h2>References</h2></div>
+    <ol class="refs">
+      <li><span class="cite-key">[1]</span>Sampatirao, H. P. (2026). <em>MemLLM: Zero-copy Shared Memory Interface for Unbounded Context Management in on-device LLM Inference.</em> Available at SSRN: <a href="https://ssrn.com/abstract=6845541">ssrn.com/abstract=6845541</a> or <a href="http://dx.doi.org/10.2139/ssrn.6845541">doi.org/10.2139/ssrn.6845541</a>. Code: github.com/hari-sampatirao/memLLM</li>
+      <li><span class="cite-key">[2]</span>Maroš, V. (2018). <em>memif: A Shared Memory Interface for Userspace Networking.</em> DPDK Summit.</li>
+      <li><span class="cite-key">[3]</span>Kalia, A., Kaminsky, M., &amp; Andersen, D. (2019). <em>Datacenter RPCs can be General and Fast.</em> NSDI.</li>
+      <li><span class="cite-key">[4]</span><em>WIP: When RDMA Meets Wireless.</em> (2022). WoWMoM.</li>
+      <li><span class="cite-key">[5]</span>Kwon, W. et al. (2023). <em>Efficient Memory Management for LLM Serving with PagedAttention.</em> SOSP.</li>
+      <li><span class="cite-key">[6]</span>Zheng, L. et al. (2024). <em>SGLang: Efficient Execution of Structured Language Model Programs.</em> arXiv:2312.07104.</li>
+      <li><span class="cite-key">[7]</span>Xiao, G. et al. (2024). <em>Efficient Streaming LLMs with Attention Sinks.</em> ICLR.</li>
+      <li><span class="cite-key">[8]</span>Mooncake Team (2025). <em>Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving.</em> USENIX FAST (Best Paper).</li>
+      <li><span class="cite-key">[9]</span>Qwen Team (2024). <em>Qwen2.5 Technical Report.</em> Alibaba Group.</li>
+      <li><span class="cite-key">[10]</span>Linux Kernel Documentation. <em>rdma_rxe — Soft-RoCE Transport Driver.</em> drivers/infiniband/sw/rxe.</li>
+      <li><span class="cite-key">[11]</span>The Apache Software Foundation. <em>Apache License, Version 2.0</em>, §3 (Grant of Patent License).</li>
+      <li><span class="cite-key">[12]</span>Cisco Technology, Inc. <em>RoCE over Wireless.</em> US Patent 10,725,948&nbsp;B2, filed Oct. 2018, granted Jul. 2020.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>Beyond a Single Machine &middot; companion to MemLLM [1]</span>
+    <span>All measurements reproducible from github.com/hari-sampatirao/memLLM</span>
+  </footer>
+
+</div>
+
+<script>
+  // ruler motif — deterministic pseudo-random heights, no dependency
+  (function () {
+    var r = document.getElementById('ruler');
+    var seed = 7;
+    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+    for (var i = 0; i < 90; i++) {
+      var el = document.createElement('i');
+      el.style.height = (14 + rnd() * 86) + '%';
+      r.appendChild(el);
+    }
+  })();
+</script>
+
+<script>
+  // Figure 5 — full log-scaled latency spectrum, hand-built inline SVG bar chart
+  (function () {
+    var data = [
+      { label: 'HTTP-Ollama (CPU, [1])',       ms: 66620,   group: 'cross' },
+      { label: 'MemLLM (Windows shm, [1])',    ms: 53194,   group: 'cross' },
+      { label: 'UDP-RPC + real vLLM, Wi-Fi',   ms: 10613,   group: 'cross' },
+      { label: 'HTTP/JSON + real vLLM, Wi-Fi', ms: 10769,   group: 'cross' },
+      { label: 'HTTP/JSON, real Wi-Fi',        ms: 1590,    group: 'cross' },
+      { label: 'UDP-RPC, real Wi-Fi',          ms: 1509,    group: 'cross' },
+      { label: 'HTTP/JSON, loopback',          ms: 1.9,     group: 'same' },
+      { label: 'UDP-RPC, loopback',            ms: 0.4,     group: 'same' },
+      { label: 'MemLLM-Linux (memfd+eventfd)', ms: 0.1,     group: 'same' },
+      { label: 'Soft-RoCE (ib_send_lat)',      ms: 0.0028,  group: 'same' }
+    ];
+    var W = 700, rowH = 30, gap = 10, left = 210, right = 90, top = 10;
+    var H = top + data.length * (rowH + gap);
+    var minLog = Math.log10(0.002), maxLog = Math.log10(100000);
+    function x(ms) {
+      var t = (Math.log10(ms) - minLog) / (maxLog - minLog);
+      return left + t * (W - left - right);
+    }
+    function fmt(ms) {
+      if (ms < 1) return (ms * 1000).toFixed(1) + 'µs';
+      if (ms < 1000) return ms.toFixed(ms < 10 ? 1 : 0) + 'ms';
+      return (ms / 1000).toFixed(1) + 's';
+    }
+    var svgns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgns, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (H + 30));
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Bar chart of mean latency across ten mechanisms, log scale, spanning from 66.6 seconds down to 2.8 microseconds');
+
+    // gridlines at decades
+    for (var p = -3; p <= 5; p++) {
+      var val = Math.pow(10, p);
+      if (val < 0.002 || val > 100000) continue;
+      var gx = x(val);
+      var gl = document.createElementNS(svgns, 'line');
+      gl.setAttribute('x1', gx); gl.setAttribute('x2', gx);
+      gl.setAttribute('y1', top); gl.setAttribute('y2', H - gap);
+      gl.setAttribute('stroke', 'currentColor'); gl.setAttribute('stroke-opacity', '0.12');
+      svg.appendChild(gl);
+      var gt = document.createElementNS(svgns, 'text');
+      gt.setAttribute('x', gx); gt.setAttribute('y', H + 18);
+      gt.setAttribute('font-size', '9.5'); gt.setAttribute('text-anchor', 'middle');
+      gt.setAttribute('fill', 'currentColor'); gt.setAttribute('opacity', '0.55');
+      gt.textContent = fmt(val);
+      svg.appendChild(gt);
+    }
+
+    data.forEach(function (d, i) {
+      var y = top + i * (rowH + gap);
+      var lbl = document.createElementNS(svgns, 'text');
+      lbl.setAttribute('x', left - 12); lbl.setAttribute('y', y + rowH / 2 + 4);
+      lbl.setAttribute('text-anchor', 'end'); lbl.setAttribute('font-size', '11.5');
+      lbl.setAttribute('fill', 'currentColor');
+      lbl.textContent = d.label;
+      svg.appendChild(lbl);
+
+      var x0 = x(0.002), x1 = x(d.ms);
+      var bar = document.createElementNS(svgns, 'rect');
+      bar.setAttribute('x', x0); bar.setAttribute('y', y);
+      bar.setAttribute('width', Math.max(2, x1 - x0)); bar.setAttribute('height', rowH);
+      bar.setAttribute('rx', 4);
+      bar.setAttribute('fill', d.group === 'cross' ? 'var(--c-orange)' : 'var(--c-blue)');
+      bar.setAttribute('fill-opacity', '0.85');
+      var title = document.createElementNS(svgns, 'title');
+      title.textContent = d.label + ': ' + fmt(d.ms) + (d.group === 'cross' ? ' (cross-device)' : ' (same machine)');
+      bar.appendChild(title);
+      svg.appendChild(bar);
+
+      var val = document.createElementNS(svgns, 'text');
+      val.setAttribute('x', x1 + 8); val.setAttribute('y', y + rowH / 2 + 4);
+      val.setAttribute('font-size', '11.5'); val.setAttribute('font-weight', '600');
+      val.setAttribute('fill', 'currentColor');
+      val.textContent = fmt(d.ms);
+      svg.appendChild(val);
+    });
+
+    document.getElementById('chart-spectrum').appendChild(svg);
+  })();
+</script>

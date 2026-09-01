@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+
+# Ephemeral run logs from benchmark/server sessions (regenerate by re-running)
+*.log
+
+# Generated benchmark output (regenerate via memllm_benchmark.py)
+results/
+
+# LaTeX build intermediates (tectonic/pdflatex don't normally leave these, but just in case)
+*.aux
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# OS junk
+.DS_Store
+Thumbs.db

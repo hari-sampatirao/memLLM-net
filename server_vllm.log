@@ -1,0 +1,9 @@
+[udp-rpc]  listening on :57301  (loss_pct=0.0%)[mock-server] both transports up. Ctrl+C to stop.
+
+[http-mock] listening on :57380
+[udp-rpc]  seq=10  response delivery failed: msg 10: gave up after 21 attempts
+[udp-rpc]  seq=4  response delivery failed: msg 4: gave up after 21 attempts
+[udp-rpc]  seq=5  response delivery failed: msg 5: gave up after 21 attempts
+[udp-rpc]  seq=6  response delivery failed: msg 6: gave up after 21 attempts
+[udp-rpc]  seq=7  response delivery failed: msg 7: gave up after 21 attempts
+[udp-rpc]  seq=8  response delivery failed: msg 8: gave up after 21 attempts

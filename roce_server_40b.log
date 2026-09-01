@@ -1,0 +1,7 @@
+ethernet_read_data: Couldn't read reports
+ Unable to read to socket/rdma_cm
+ Failed to exchange data between server and clients
+
+************************************
+* Waiting for client to connect... *
+************************************
