@@ -19,11 +19,11 @@
 \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
 
-\title{\textbf{Beyond a Single Machine:}\\[4pt]
+\title{\textbf{memLLM-net:}\\[4pt]
 \large An Empirical Comparison of Wi-Fi, Shared-Memory, and RDMA\\
 Transports for On-Device LLM Context Delivery}
 
-\author{Hari Prasad Sampatirao \\ \small Walsh College, Troy, Michigan \\ \small \href{https://github.com/hari-sampatirao/memLLM}{github.com/hari-sampatirao/memLLM}}
+\author{Hari Prasad Sampatirao \\ \small Walsh College, Troy, Michigan \\ \small \href{https://github.com/hari-sampatirao/memLLM-net}{github.com/hari-sampatirao/memLLM-net}}
 \date{Companion study to MemLLM~\cite{memllm} \\ August 2026}
 
 \begin{document}
@@ -31,7 +31,7 @@ Transports for On-Device LLM Context Delivery}
 
 \begin{abstract}
 \noindent
-MemLLM~\cite{memllm} argued that zero-copy shared memory eliminates the serialization overhead dominating on-device LLM inference --- a claim scoped, by construction, to a single machine. This study tests what happens at that scope's edges. We build and validate, on real hardware: (i) an eRPC-style reliable transport for the case where the application and inference server are not co-located, exercised over synthetic loss and then a real home Wi-Fi link between two physical devices; (ii) the Linux \texttt{memfd\_create}/\texttt{eventfd} shared-memory path MemLLM always described but never measured, completing its own stated evaluation gap; and (iii) a real RDMA transport via Soft-RoCE, requiring no specialized hardware. Five genuine defects surfaced and were fixed in building the Wi-Fi transport, including a retry-storm failure mode that reproduces, and complicates, the standard claim that RoCE livelocks on lossy links. Real shared memory beats the Wi-Fi-capable transport by roughly 4$\times$ and real RDMA verbs beat our own Python shared-memory implementation by roughly 36$\times$ on the same machine --- a measured ceiling this line of work falls well short of. We further argue, against an earlier framing of our own, that the KV cache should almost never cross the network at all: a thin client tracking only \emph{what changed}, not the cache itself, is sufficient for the common architecture, which reframes what ``KV-cache-over-Wi-Fi'' should actually mean.
+\textbf{Beyond a single machine} is where MemLLM's~\cite{memllm} central argument stops holding: it argued that zero-copy shared memory eliminates the serialization overhead dominating on-device LLM inference, a claim scoped, by construction, to one machine. memLLM-net tests what happens at that scope's edges. We build and validate, on real hardware: (i) an eRPC-style reliable transport for the case where the application and inference server are not co-located, exercised over synthetic loss and then a real home Wi-Fi link between two physical devices; (ii) the Linux \texttt{memfd\_create}/\texttt{eventfd} shared-memory path MemLLM always described but never measured, completing its own stated evaluation gap; and (iii) a real RDMA transport via Soft-RoCE, requiring no specialized hardware. Five genuine defects surfaced and were fixed in building the Wi-Fi transport, including a retry-storm failure mode that reproduces, and complicates, the standard claim that RoCE livelocks on lossy links. Real shared memory beats the Wi-Fi-capable transport by roughly 4$\times$ and real RDMA verbs beat our own Python shared-memory implementation by roughly 36$\times$ on the same machine --- a measured ceiling this line of work falls well short of. We further argue, against an earlier framing of our own, that the KV cache should almost never cross the network at all: a thin client tracking only \emph{what changed}, not the cache itself, is sufficient for the common architecture, which reframes what ``KV-cache-over-Wi-Fi'' should actually mean.
 
 \medskip
 \noindent\textbf{Keywords ---} KV cache, shared memory, memif, eRPC, RoCE, Soft-RoCE, Wi-Fi, RDMA, on-device inference, vLLM

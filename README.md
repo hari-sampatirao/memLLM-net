@@ -83,8 +83,8 @@ If you use this work, please cite both papers:
 
 @misc{memllmnet2026,
   author = {Sampatirao, Hari Prasad},
-  title  = {Beyond a Single Machine: An Empirical Comparison of Wi-Fi,
-            Shared-Memory, and RDMA Transports for On-Device LLM Context Delivery},
+  title  = {memLLM-net: An Empirical Comparison of Wi-Fi, Shared-Memory,
+            and RDMA Transports for On-Device LLM Context Delivery},
   year   = {2026},
   note   = {Companion study to MemLLM}
 }
